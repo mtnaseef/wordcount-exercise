@@ -4,7 +4,7 @@ To build:
 
 To run:
 
-    mvn java:exec
+    mvn exec:java
 
 To access the service:
 
