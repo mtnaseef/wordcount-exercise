@@ -1,4 +1,4 @@
-package mnaseef;
+package mtnaseef;
 
 
 import org.junit.AfterClass;

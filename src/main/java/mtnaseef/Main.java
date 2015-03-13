@@ -1,4 +1,4 @@
-package mnaseef;
+package mtnaseef;
 
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
@@ -26,8 +26,8 @@ public class Main {
      */
     public static HttpServer startServer() {
         // create a resource config that scans for JAX-RS resources and providers
-        // in mnaseef package.
-        final ResourceConfig rc = new ResourceConfig().packages("mnaseef")
+        // in mtnaseef package.
+        final ResourceConfig rc = new ResourceConfig().packages("mtnaseef")
                 // register jersey multi-part support
                 .packages("org.glassfish.jersey.examples.multipart")
                 .register(MultiPartFeature.class);

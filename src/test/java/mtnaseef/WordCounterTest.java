@@ -1,4 +1,4 @@
-package mnaseef;
+package mtnaseef;
 
 import org.junit.Test;
 import org.junit.internal.matchers.IsCollectionContaining;
