@@ -13,8 +13,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Main class.
- *
+ * Main class. Starts the Grizzly HTTP server listening on port 8080
+ * and handles requests to the webservice at http://localhost:8080/.
  */
 public class Main {
     // Base URI the Grizzly HTTP server will listen on
@@ -42,7 +42,7 @@ public class Main {
 
     private static ContextResolver<MoxyJsonConfig> createMoxyJsonResolver() {
         final MoxyJsonConfig moxyJsonConfig = new MoxyJsonConfig();
-        Map<String, String> namespacePrefixMapper = new HashMap<String, String>(1);
+        final Map<String, String> namespacePrefixMapper = new HashMap<String, String>(1);
         namespacePrefixMapper.put("http://www.w3.org/2001/XMLSchema-instance", "xsi");
         moxyJsonConfig.setNamespacePrefixMapper(namespacePrefixMapper).setNamespaceSeparator(':');
         return moxyJsonConfig.resolver();
@@ -53,12 +53,13 @@ public class Main {
      * @param args ignored
      * @throws IOException If there is a problem reading stdin.
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(final String[] args) throws IOException {
         final HttpServer server = startServer();
         System.out.println(String.format("Jersey app started with WADL available at "
                 + "%sapplication.wadl\nHit enter to stop it...", BASE_URI));
         System.in.read();
         server.stop();
+        System.exit(0);
     }
 }
 

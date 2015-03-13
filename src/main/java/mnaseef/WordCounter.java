@@ -11,6 +11,8 @@ import java.util.regex.Pattern;
 /**
  * Count words in text documents. Maintains state to allow
  * count across multiple documents.
+ *
+ * Note that methods in this class are not thread-safe.
  */
 public class WordCounter {
     private Map<String, Long> wordCounts;
@@ -33,12 +35,16 @@ public class WordCounter {
         String[] words = wordSplit.split(text);
         for (String w : words) {
             final String word = w.toLowerCase();
-            Long c = wordCounts.get(word);
-            if (c == null) {
-                wordCounts.put(word, ONE);
-            } else {
-                wordCounts.put(word, c + 1);
-            }
+            addCounts(word, ONE);
+        }
+    }
+
+    private void addCounts(String word, Long count) {
+        Long c = wordCounts.get(word);
+        if (c == null) {
+            wordCounts.put(word, count);
+        } else {
+            wordCounts.put(word, c + count);
         }
     }
 
@@ -46,10 +52,10 @@ public class WordCounter {
      * Returns a reference to the underlying map of word counts.
      * Note that updates to this class will be reflected in the
      * map returned and vice versa, and such access is not thread safe.
-     * TODO - make a copy or make this protected/private
+     * TODO - make a copy or make this private
      * @return The map of word counts backing this instance.
      */
-    public Map<String, Long> getWordCounts() {
+    Map<String, Long> getWordCounts() {
         return wordCounts;
     }
 
@@ -82,19 +88,28 @@ public class WordCounter {
     }
 
     /**
+     * Merge the given counter into this instance.
+     * @param counter A WordCounter instance containing counts to be added
+     *                to existing counts.
+     */
+    public void merge(final WordCounter counter) {
+        for (Map.Entry<String, Long> entry : counter.wordCounts.entrySet()) {
+            addCounts(entry.getKey(), entry.getValue());
+        }
+    }
+
+    /**
      * Compares two words based on the counts from the word count map.
      * Words with the same count will be ordered alphabetically.
      */
     private class WordCountComparator implements Comparator<String> {
         @Override
-        public int compare(String o1, String o2) {
+        public int compare(final String o1, final String o2) {
             int result = wordCounts.get(o1).compareTo(wordCounts.get(o2));
-
             // If same count, order by the word.
             if (result == 0) {
                 result = o1.compareTo(o2);
             }
-
             return result;
         }
     }

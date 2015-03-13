@@ -7,7 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+
 
 public class WordCounterTest {
 
@@ -109,5 +111,26 @@ public class WordCounterTest {
         expected.add(new WordCount("alpha", 1));
         List<WordCount> topTen = instance.getTopTen();
         assertEquals(expected, topTen);
+    }
+
+    @Test
+    public void testMerge() throws Exception {
+        WordCounter instance = new WordCounter();
+        instance.countWords("Alpha beta gamma");
+
+        WordCounter instance2 = new WordCounter();
+        instance2.countWords("alpha beta alpha11");
+
+        instance.merge(instance2);
+
+        Map<String, Long> counts = instance.getWordCounts();
+
+        assertEquals(4, counts.keySet().size());
+        assertThat(counts.keySet(),
+                IsCollectionContaining.hasItems("alpha", "beta", "gamma", "alpha11"));
+        assertEquals(Long.valueOf(2), counts.get("alpha"));
+        assertEquals(Long.valueOf(2), counts.get("beta"));
+        assertEquals(Long.valueOf(1), counts.get("gamma"));
+        assertEquals(Long.valueOf(1), counts.get("alpha11"));
     }
 }

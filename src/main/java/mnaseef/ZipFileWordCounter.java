@@ -1,11 +1,11 @@
 package mnaseef;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -15,7 +15,18 @@ import java.util.zip.ZipInputStream;
  */
 public class ZipFileWordCounter {
 
+    private FileWordCounter fileWordCounter;
     private static final int BUFFER_SIZE = 2048;
+
+    /**
+     * Create an instance which will use the specified FileWordCounter
+     * to process files.
+     * @param fileWordCounter FileWordCounter instance to use to process
+     *                        all files from the zip file at once.
+     */
+    public ZipFileWordCounter(final FileWordCounter fileWordCounter) {
+        this.fileWordCounter = fileWordCounter;
+    }
 
     /**
      * Process the files in the zip data represented in the given input stream.
@@ -28,40 +39,45 @@ public class ZipFileWordCounter {
     public WordCounter countZipFileWords(final InputStream fileData)
             throws IOException {
 
+        final ArrayList<File> fileList = new ArrayList<>();
         final ZipInputStream zipIn = new ZipInputStream(fileData);
-        final WordCounter result = new WordCounter();
         try {
             ZipEntry entry = zipIn.getNextEntry();
             while (entry != null) {
                 if (!entry.isDirectory()) {
-                    writeTempFile(zipIn);
-                    // TODO start a worker
+                    fileList.add(writeTempFile(zipIn));
                 }
                 zipIn.closeEntry();
                 entry = zipIn.getNextEntry();
             }
-            // TODO aggregate worker results
-            return result;
+
+            final WordCounter wordCounter = fileWordCounter.countWords(fileList);
+            for (File file : fileList) {
+                Files.delete(file.toPath());
+            }
+            return wordCounter;
         } finally {
             zipIn.close();
         }
     }
 
-    private void writeTempFile(final ZipInputStream zipIn)
+    private File writeTempFile(final ZipInputStream zipIn)
             throws IOException {
         final byte[] buf = new byte[BUFFER_SIZE];
-        // TODO configurable temporary file location
+        // FIXME - this can fill up /tmp - use a configurable temporary file location
         final File tempFile = File.createTempFile("wordcount", null);
         FileOutputStream out = null;
         try {
             out = new FileOutputStream(tempFile);
-            while (zipIn.read(buf, 0, BUFFER_SIZE) != -1) {
-                out.write(buf);
+            int sz;
+            while ((sz = zipIn.read(buf, 0, BUFFER_SIZE)) != -1) {
+                out.write(buf, 0, sz);
             }
         } finally {
             if (out != null) {
                 out.close();
             }
         }
+        return tempFile;
     }
 }

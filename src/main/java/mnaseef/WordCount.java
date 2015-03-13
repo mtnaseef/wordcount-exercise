@@ -21,7 +21,7 @@ public class WordCount {
         return word;
     }
 
-    public void setWord(String word) {
+    public void setWord(final String word) {
         this.word = word;
     }
 
@@ -29,7 +29,7 @@ public class WordCount {
         return count;
     }
 
-    public void setCount(long count) {
+    public void setCount(final long count) {
         this.count = count;
     }
     /**
@@ -39,7 +39,7 @@ public class WordCount {
      * @return true if the two instances have the same word and count values.
      */
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (o == null || !(o instanceof WordCount)) {
             return false;
         }

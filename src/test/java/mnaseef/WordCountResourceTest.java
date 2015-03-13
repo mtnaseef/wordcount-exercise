@@ -16,9 +16,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringBufferInputStream;
 
 import static org.junit.Assert.assertEquals;
 
@@ -43,15 +43,12 @@ public class WordCountResourceTest {
         server.stop();
     }
 
-    /**
-     * Test to see that the message is sent in the response.
-     */
     @Test
-    public void testGetIt() {
-        InputStream data = new ByteArrayInputStream("A test line".getBytes());
+    public void testCountWords() throws IOException {
+        InputStream data = new FileInputStream("testdata/test.zip");
         FormDataMultiPart mp = new FormDataMultiPart();
         mp.bodyPart(new FormDataBodyPart(
-                FormDataContentDisposition.name("file").fileName("fakefile").build(),
+                FormDataContentDisposition.name("file").fileName("test.zip").build(),
                 data,
                 MediaType.APPLICATION_OCTET_STREAM_TYPE
         ));
@@ -59,6 +56,9 @@ public class WordCountResourceTest {
                 Entity.entity(mp, MediaType.MULTIPART_FORM_DATA_TYPE);
         String responseMsg =
                 target.path("wordcount").request().post(postData, String.class);
-        assertEquals("A test line", responseMsg);
+        assertEquals(
+                "[{\"count\":5,\"word\":\"this\"},{\"count\":5,\"word\":\"test\"},{\"count\":4,\"word\":\"is\"},{\"count\":2,\"word\":\"a\"},{\"count\":1,\"word\":\"the\"},{\"count\":1,\"word\":\"testing\"},{\"count\":1,\"word\":\"please\"},{\"count\":1,\"word\":\"only\"},{\"count\":1,\"word\":\"me\"},{\"count\":1,\"word\":\"how\"}]",
+                responseMsg);
+        data.close();
     }
 }
